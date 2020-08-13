@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Helpers\Helper;
 use App\Models\EOGuestUser;
+use http\Env\Request;
 
 
 class RegisterUserRepository
@@ -51,9 +52,32 @@ class RegisterUserRepository
     }
 
      public function create($request){
-           //  dd($request);
-           $data = $this->eoGuestUser::create($request);
-           return response([],201);
+            $isExist = $this->checkEmail($request);
+            if($isExist == true){
+                //$data = $this->eoGuestUser::where('email', '=', $request["email"]);
+                //dd($data->get());
+                $data = $this->eoGuestUser::update($request);
+                //$data->update($data);
+
+
+            }else{
+                $data = $this->eoGuestUser::create($request);
+            }
+
+            // dd($data);
+         $data->isExist = $isExist;
+           return response($data,201);
+        }
+
+        public function checkEmail($request){
+            //dd($request);
+
+            if($this->eoGuestUser::where('email', '=', $request["email"])->exists()){
+              return true;
+
+
+            }
+            return false;
         }
 
     /**
