@@ -20,6 +20,8 @@ Route::group(['prefix' => 'v1'], function () {
   });
     Route::post('/createImgObject', 'EOImageController@store');
     Route::post('/registerGuestUserForLogin', 'RegisterUserController@store');
+    Route::post('/registerGuestToUserForLogin', 'RegisterUserController@registerGuestToUser');
+    Route::post('/verifyOtpForLogin', 'RegisterUserController@verifyOtp');
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {

@@ -5,17 +5,22 @@ namespace App\Repositories;
 
 
 use App\Helpers\Helper;
+use App\Mail\EmailVerification;
+use App\Mail\SendOtpEmail;
 use App\Models\EOGuestUser;
+use App\Models\EOUser;
 use http\Env\Request;
+use Illuminate\Support\Facades\Mail;
 
 
 class RegisterUserRepository
 {
     protected $eoGuestUser;
 
-    public function __construct(EOGuestUser $eoGuestUser)
+    public function __construct(EOGuestUser $eoGuestUser, EOUser $eoUser)
     {
         $this->eoGuestUser = $eoGuestUser;
+        $this->eoUser = $eoUser;
     }
     /**
      * Retrive all the Profiles in according to filters
@@ -51,34 +56,95 @@ class RegisterUserRepository
         return $this->eoGuestUser::all();
     }
 
-     public function create($request){
-            $isExist = $this->checkEmail($request);
-            if($isExist == true){
-                //$data = $this->eoGuestUser::where('email', '=', $request["email"]);
-                //dd($data->get());
-                $data = $this->eoGuestUser::update($request);
-                //$data->update($data);
+    public function create($request){
+        $isExist = $this->checkEmail($request);
+        if($isExist == true){
+            $user = $this->eoGuestUser::select('primary_key')->where('email','=',$request["email"]);
+            $user = $user->get()->pluck('primary_key');
+            $data = $this->eoGuestUser::find($user->get(0));
+           // dd($data);
+            $data->update($request);
+            $data->isExist = $isExist;
+            //dd($data["otp"]);
+            Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
 
+        }
+        else{
+            $data = $this->eoGuestUser::create($request);
+            $data->isExist = $isExist;
+            //dd($data["email"]);
+            Mail::to($data["email"])->send(new SendOtpEmail($data));
+        }
+        //env()
 
+        return response($data,201);
+    }
+    public function verify($request){
+        $isExist = $this->checkEmail($request);
+        if($isExist == true){
+            if ($request["className"] == "EOGuestUser"){
+
+                $user = $this->eoGuestUser::select('primary_key')->where('email','=',$request["email"]);
+                $user = $user->get()->pluck('primary_key');
+                $data = $this->eoGuestUser::find($user->get(0));
+                // dd($data["otp"]);
+                if ($data["otp"] == $request["otp"]){
+                    $data->isOtpMatched = true;
+                    $success['isOtpMatched'] = $data["isOtpMatched"];
+
+                }else{
+                    $data->isOtpMatched = false;
+                    $success['isOtpMatched'] = $data["isOtpMatched"];
+
+                }
+                return response($success,201);
             }else{
-                $data = $this->eoGuestUser::create($request);
+                $user = $this->eoUser::select('primary_key')->where('email','=',$request["email"]);
+                $user = $user->get()->pluck('primary_key');
+                $data = $this->eoUser::find($user->get(0));
+
+                if ($data["otp"] == $request["otp"]){
+                    $data->isOtpMatched = true;
+                    $success['isOtpMatched'] = $data["isOtpMatched"];
+
+                }else{
+                    $data->isOtpMatched = false;
+                    $success['isOtpMatched'] = $data["isOtpMatched"];
+
+                }
+                return response($data,201);
             }
 
-            // dd($data);
-         $data->isExist = $isExist;
-           return response($data,201);
+
         }
 
-        public function checkEmail($request){
-            //dd($request);
-
-            if($this->eoGuestUser::where('email', '=', $request["email"])->exists()){
-              return true;
 
 
-            }
-            return false;
+    }
+    public function guestToUser($request){
+
+
+        $user = $this->eoGuestUser::select('primary_key')->where('primary_key','=',$request["guestUserPk"]);
+        $user = $user->get()->pluck('primary_key');
+        $data = $this->eoGuestUser::find($user->get(0));
+        // dd($data["email"]);
+
+        $request['email'] = $data["email"];
+        // dd($request);
+
+        $data1 = $this->eoUser::create($request);
+
+        // dd($data);
+
+        return response($data,201);
+    }
+
+    public function checkEmail($request){
+        if($this->eoGuestUser::where('email', '=', $request["email"])->exists()){
+            return true;
         }
+        return false;
+    }
 
     /**
      * Store the profile in according to request
