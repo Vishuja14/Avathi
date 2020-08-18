@@ -41,7 +41,6 @@ class RegisterUserController extends Controller
         $input["otp"] = mt_rand(1000,9999);
         $input["created_date"] = today()->format('Y-m-d');
         $input["created_time"] = Carbon::now()->toDateTimeString();
-        $http_origin = $request->headers->get('origin');
             $response =  $this->registerUserRepository->create($input);
             return $this->successResponse($response,'created',201);
         }

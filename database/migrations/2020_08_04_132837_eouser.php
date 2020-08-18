@@ -48,6 +48,7 @@ class Eouser extends Migration
                                                $table->string('shoeSize')->nullable();;
                                                $table->string('createdDate')->nullable();;
                                                $table->string('updatedDate')->nullable();
+                                               $table->string('accessToken')->nullable();
                                                $table->integer('otp')->nullable();
                                                $table->bigInteger('defaultrole_primary_key')->nullable();
 

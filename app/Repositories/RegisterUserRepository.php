@@ -59,10 +59,10 @@ class RegisterUserRepository
     public function create($request){
         $isExist = $this->checkEmail($request);
         if($isExist == true){
-            $user = $this->eoGuestUser::select('primary_key')->where('email','=',$request["email"]);
+            $user = $this->eoUser::select('primary_key')->where('email','=',$request["email"]);
             $user = $user->get()->pluck('primary_key');
-            $data = $this->eoGuestUser::find($user->get(0));
-           // dd($data);
+            $data = $this->eoUser::find($user->get(0));
+            //dd($request);
             $data->update($request);
             $data->isExist = $isExist;
             //dd($data["otp"]);
