@@ -66,14 +66,14 @@ class RegisterUserRepository
             $data->update($request);
             $data->isExist = $isExist;
             //dd($data["otp"]);
-           // Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
+            Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
 
         }
         else{
             $data = $this->eoGuestUser::create($request);
             $data->isExist = $isExist;
             //dd($data["email"]);
-           // Mail::to($data["email"])->send(new SendOtpEmail($data));
+            Mail::to($data["email"])->send(new SendOtpEmail($data));
         }
         //env()
 
