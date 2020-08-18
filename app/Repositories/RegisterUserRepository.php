@@ -66,14 +66,14 @@ class RegisterUserRepository
             $data->update($request);
             $data->isExist = $isExist;
             //dd($data["otp"]);
-            Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
+           // Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
 
         }
         else{
             $data = $this->eoGuestUser::create($request);
             $data->isExist = $isExist;
             //dd($data["email"]);
-            Mail::to($data["email"])->send(new SendOtpEmail($data));
+           // Mail::to($data["email"])->send(new SendOtpEmail($data));
         }
         //env()
 
@@ -104,8 +104,13 @@ class RegisterUserRepository
                 $data = $this->eoUser::find($user->get(0));
 
                 if ($data["otp"] == $request["otp"]){
+                    $token =  $data->createToken('MyApp')->accessToken;
+                    $req["accessToken"] = $token;
+                    //dd($token);
+                    $data->update($req);
                     $data->isOtpMatched = true;
                     $success['isOtpMatched'] = $data["isOtpMatched"];
+
 
                 }else{
                     $data->isOtpMatched = false;
@@ -133,10 +138,14 @@ class RegisterUserRepository
         // dd($request);
 
         $data1 = $this->eoUser::create($request);
+        $token =  $data1->createToken('MyApp')->accessToken;
+        $request["accessToken"] = $token;
+        //$data1 = $this->eoUser::update($request);
+        $data1->update($request);
 
-        // dd($data);
+        // dd($token);
 
-        return response($data,201);
+        return response($data,201)->header('token',$token);
     }
 
     public function checkEmail($request){
