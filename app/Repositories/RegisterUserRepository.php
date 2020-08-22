@@ -66,20 +66,21 @@ class RegisterUserRepository
             $data->update($request);
             $data->isExist = $isExist;
             //dd($data["otp"]);
-            Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
+           // Mail::to($data["email"])->send(new SendOtpEmail($data["otp"]));
 
         }
         else{
             $data = $this->eoGuestUser::create($request);
             $data->isExist = $isExist;
             //dd($data["email"]);
-            Mail::to($data["email"])->send(new SendOtpEmail($data));
+            //Mail::to($data["email"])->send(new SendOtpEmail($data));
         }
         //env()
 
         return response($data,201);
     }
     public function verify($request){
+       // dd($request);
         $isExist = $this->checkEmail($request);
         if($isExist == true){
             if ($request["className"] == "EOGuestUser"){
@@ -87,7 +88,7 @@ class RegisterUserRepository
                 $user = $this->eoGuestUser::select('primary_key')->where('email','=',$request["email"]);
                 $user = $user->get()->pluck('primary_key');
                 $data = $this->eoGuestUser::find($user->get(0));
-                // dd($data["otp"]);
+                 //dd($data);
                 if ($data["otp"] == $request["otp"]){
                     $data->isOtpMatched = true;
                     $success['isOtpMatched'] = $data["isOtpMatched"];

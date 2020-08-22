@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImgaeRequest;
+use App\Http\Requests\OtpRequest;
 use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\UserRequest;
 use App\Repositories\ImageRepository;
 use App\Repositories\RegisterUserRepository;
 use App\Repositories\UserRepository;
@@ -34,7 +36,7 @@ class RegisterUserController extends Controller
         $this->registerUserRepository = $registerUserRepository;
         $this->userRepository = $userRepository;
     }
-    public function store(RegisterUserRequest $request){
+    public function store(Request $request){
         // dd($request);
         $input = $request->all();
         $today = today();
@@ -45,13 +47,13 @@ class RegisterUserController extends Controller
             return $this->successResponse($response,'created',201);
         }
 
-    public function verifyOtp(Request $request){
+    public function verifyOtp(OtpRequest $request){
         // dd($request);
         $input = $request->all();
         $response =  $this->registerUserRepository->verify($input);
         return $this->successResponse($response,'verify',201);
     }
-    public function registerGuestToUser(Request $request){
+    public function registerGuestToUser(UserRequest $request){
         // dd($request);
         $input = $request->all();
         $response =  $this->registerUserRepository->guestToUser($input);

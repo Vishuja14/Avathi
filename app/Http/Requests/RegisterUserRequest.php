@@ -24,7 +24,7 @@ class RegisterUserRequest extends FormRequest
     public function rules()
     {
         return [
-            //'email' => 'unique:eoguestuser,email'
+            'email' => 'required|unique:eoguestuser,email'
 
         ];
     }
